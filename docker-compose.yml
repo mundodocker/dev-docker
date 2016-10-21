@@ -1,3 +1,5 @@
+# Utilizando sintax da versão 2:
+#   https://docs.docker.com/compose/compose-file/#/versioning
 version: '2'
 
 volumes:
@@ -5,11 +7,47 @@ volumes:
         driver: local
 
 services:
-  nginx:
-      image: nginx:latest
-      ports:
-          - 80:80
-      volumes:
-          - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      volumes_from:
-          - php
+###########################
+# Container Web (Nginx)
+###########################
+    nginx:
+        image: nginx:latest
+        ports:
+            - 8080:80
+        volumes:
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+        volumes_from:
+            - php
+
+###########################
+# Container PHP
+###########################
+    php:
+        build: ./php/
+        expose:
+            - 9000
+        volumes:
+            - .:/var/www/html
+
+###########################
+# Container de teste
+###########################
+    testing:
+        build: ./php/
+        volumes_from:
+            - php
+
+###########################
+# Container de banco de dados (MySQL)
+###########################
+    mysql:
+        image: mysql:latest
+        expose:
+            - 3306
+        volumes:
+            - database_data:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: senha
+            MYSQL_DATABASE: projeto
+            MYSQL_USER: projeto
+            MYSQL_PASSWORD: projeto
